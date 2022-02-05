@@ -8,6 +8,16 @@ else
   let s:refresh_rate = 0
 endif
 
+function! s:stopServer()
+  silent! exec '!pkill markdown-composer'
+  silent! unlet s:job
+endfunction
+
+function! s:restartServer() abort
+  call s:stopServer()
+  call s:startServer()
+endfunction
+
 function! s:startServer()
   if exists('s:job')
     return
@@ -53,9 +63,7 @@ function! s:startServer()
   endif
 
   function! s:onServerExit(id, exit_status, event) abort
-    if exists(s:job)
-      unlet s:job
-    endif
+    silent! unlet s:job
   endfunction
 
   if has('nvim')
@@ -150,6 +158,8 @@ command! ComposerUpdate call s:sendBuffer()
 command! ComposerOpen call s:openBrowser() | call s:sendBuffer()
 command! ComposerStart call s:startServer()
 command! ComposerJob call s:echoJob()
+command! ComposerStop call s:stopServer()
+command! ComposerRestart call s:restartServer()
 
 augroup markdown-composer
   autocmd!
